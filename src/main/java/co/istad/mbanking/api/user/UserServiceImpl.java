@@ -1,13 +1,10 @@
 package co.istad.mbanking.api.user;
 
-import co.istad.mbanking.api.user.web.CreateUserDto;
-import co.istad.mbanking.api.user.web.UserDto;
-import com.github.pagehelper.Page;
+import co.istad.mbanking.api.user.web.*;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -32,11 +29,30 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.selectById(id).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
                 String.format("User with id %d not found", id)));
-        System.out.println(user);
         return userMapStruct.mapUserToUserDto(user);
     }
 
-//    Delete user by ID
+
+    //    Find User by student card id
+    @Override
+    public UserDto findUserByStudentCardId(SelectByStudentCardIdDto selectByStudentCardIdDto) {
+        User user = userMapper.selectByStudentCardId(selectByStudentCardIdDto).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND,
+                String.format("User with student card id '%s' not found", selectByStudentCardIdDto)));
+        return userMapStruct.mapUserToUserDto(user);
+    }
+
+
+    @Override
+    public UserDto findUserByName(SelectUserByNameDto selectUserByNameDto) {
+        User user = userMapper.selectByName(selectUserByNameDto).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        String.format("User with student card id '%s' not found", selectUserByNameDto)));
+        return userMapStruct.mapUserToUserDto(user);
+    }
+
+
+    //    Delete user by ID
     @Override
     public Integer deleteUserById(Integer id) {
         boolean isExisted = userMapper.existsById(id);
@@ -67,4 +83,15 @@ public class UserServiceImpl implements UserService {
         return userMapStruct.userDtoToPageInfoUserDtoPageInfo(userPageInfo);
     }
 
+    @Override
+    public UserDto updateUserById(Integer id, UpdateUserDto updateUserDto) {
+        if (userMapper.existsById(id)) {
+            User user = userMapStruct.updateUserDtoToUser(updateUserDto);
+            user.setId(id);
+            userMapper.updateById(user);
+            return this.findUserById(id);
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                String.format("User with %d is not found", id));
+    }
 }

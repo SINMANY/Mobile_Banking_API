@@ -15,6 +15,13 @@ public class UserProvider {
 
     }
 
+    public String buildUpdateByIdSql(){
+        return new SQL(){{
+            UPDATE(tableName);
+            SET("name = #{u.name}");
+            SET("gender = #{u.gender}");
+            WHERE("id=#{u.id}"); }}.toString(); }
+
 
     public String buildDeleteByIdSql(){
         return  new SQL(){{
@@ -42,6 +49,22 @@ public class UserProvider {
             SELECT("*");
             FROM(tableName);
             WHERE("id=#{id}");
+        }}.toString();
+    }
+
+    public String buildSelectUserByStudentCardIdSql() {
+        return new SQL(){{
+            SELECT("*");
+            FROM(tableName);
+            WHERE("student_card_id=#{student_card_id.studentCardId}");
+        }}.toString();
+    }
+
+    public String buildSelectUserByNameSql() {
+        return new SQL(){{
+            SELECT("*");
+            FROM(tableName);
+            WHERE("name=#{name.name}");
         }}.toString();
     }
 

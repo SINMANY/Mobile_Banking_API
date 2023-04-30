@@ -1,6 +1,6 @@
-package co.istad.mbanking.api.user.web;
+package co.istad.mbanking.api.user;
 
-import co.istad.mbanking.api.user.UserService;
+import co.istad.mbanking.api.user.web.*;
 import co.istad.mbanking.base.BaseRest;
 import com.github.pagehelper.PageInfo;
 import jakarta.validation.Valid;
@@ -19,7 +19,7 @@ public class UserRestController {
 
 
     //    Update status of the user (if user have been deleted, status will be updated and the status changed to "True"
-    @PostMapping("/{id}")
+    @PutMapping("/{id}/updateStatus")
     public BaseRest<?> updateIsDeletedStatusById(@PathVariable Integer id, @RequestBody IsDeletedDto dto) {
         Integer deletedId = userService.updateIsDeletedStatusById(id, dto.status());
         return BaseRest.builder()
@@ -30,6 +30,19 @@ public class UserRestController {
                 .data(deletedId)
                 .build();
     }
+
+//    Update user by id
+    @PutMapping("/{id}")
+    public BaseRest<?> updateUserById(@PathVariable("id") Integer id,
+                                  @RequestBody UpdateUserDto updateUserDto){
+        UserDto userDto = userService.updateUserById(id,updateUserDto);
+        return BaseRest.builder()
+                .status(true)
+                .code(HttpStatus.OK.value())
+                .message("User have updated successfully.")
+                .timestamp(LocalDateTime.now())
+                .data(userDto)
+                .build(); }
 
 
     // Delete a user by ID
@@ -49,13 +62,36 @@ public class UserRestController {
     @GetMapping("/{id}")
     public BaseRest<?> findUserById(@PathVariable Integer id) {
         UserDto userDto = userService.findUserById(id);
-        System.out.println(userDto);
         return BaseRest.builder()
                 .status(true)
                 .code(HttpStatus.OK.value())
                 .message("User found successfully")
                 .timestamp(LocalDateTime.now())
                 .data(userDto)
+                .build();
+    }
+
+//    Find users by name
+    @GetMapping("/name")
+    public BaseRest<?> findUserByName(@RequestBody SelectUserByNameDto selectUserByNameDto){
+        return BaseRest.builder()
+                .status(true)
+                .code(HttpStatus.OK.value())
+                .message("User found successfully")
+                .timestamp(LocalDateTime.now())
+                .data(userService.findUserByName(selectUserByNameDto))
+                .build();
+    }
+
+//    Find users by student card id
+    @GetMapping("/studentCardId")
+    public BaseRest<?> findUserByStudentCardId( @RequestBody SelectByStudentCardIdDto selectByStudentCardIdDto){
+        return BaseRest.builder()
+                .status(true)
+                .code(HttpStatus.OK.value())
+                .message("User found successfully")
+                .timestamp(LocalDateTime.now())
+                .data(userService.findUserByStudentCardId(selectByStudentCardIdDto))
                 .build();
     }
 
@@ -81,7 +117,7 @@ public class UserRestController {
         return BaseRest.builder()
                 .status(true)
                 .code(HttpStatus.OK.value())
-                .message("User created successfully")
+                .message("Find all users successfully")
                 .timestamp(LocalDateTime.now())
                 .data(userDtoPageInfo)
                 .build();
