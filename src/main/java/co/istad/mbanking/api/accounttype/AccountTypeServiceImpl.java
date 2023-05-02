@@ -2,6 +2,8 @@ package co.istad.mbanking.api.accounttype;
 
 import co.istad.mbanking.api.accounttype.web.AccountTypeDto;
 import co.istad.mbanking.api.accounttype.web.CreateNewAccountTypeDto;
+import co.istad.mbanking.api.accounttype.web.SelectAccountTypeByNameDto;
+import co.istad.mbanking.api.accounttype.web.UpdateAccountTypeDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -36,11 +38,20 @@ public class AccountTypeServiceImpl implements AccountTypeService {
         AccountType accountType = accountTypeMapper.selectById(id).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
                         String.format("Account type with id %d not found", id)));
-        System.out.println(accountType);
+//        System.out.println(accountType);
         return accountTypeMapStruct.mapAccountTypeToAccountTypeDto(accountType);
     }
 
-//    Delete Account Type by id
+    @Override
+    public AccountTypeDto findAccountTypeByName(SelectAccountTypeByNameDto selectAccountTypeByNameDto) {
+        AccountType accountType = accountTypeMapper.selectByName(selectAccountTypeByNameDto).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        String.format("Account type with name '%s' not found", selectAccountTypeByNameDto)));
+        return accountTypeMapStruct.mapAccountTypeToAccountTypeDto(accountType);
+    }
+
+
+    //    Delete Account Type by id
     @Override
     public Integer deleteAccountTypeById(Integer id) {
         boolean isExisted = accountTypeMapper.existsById(id);
@@ -50,5 +61,17 @@ public class AccountTypeServiceImpl implements AccountTypeService {
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                 String.format("User with id %d not found", id));
+    }
+
+    @Override
+    public AccountTypeDto updateAccountTypeById(Integer id, UpdateAccountTypeDto updateAccountTypeDto) {
+        if (accountTypeMapper.existsById(id)) {
+            AccountType accountType = accountTypeMapStruct.updateAccountTypeDtoToAccountType(updateAccountTypeDto);
+            accountType.setId(id);
+            accountTypeMapper.updateById(accountType);
+            return this.findAccountTypeById(id);
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                String.format("User with %d is not found", id));
     }
 }

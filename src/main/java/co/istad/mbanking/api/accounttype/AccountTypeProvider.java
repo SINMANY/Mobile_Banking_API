@@ -26,11 +26,20 @@ public class AccountTypeProvider {
     }
 
 
+
     public String buildSelectAccountTypeByIdSql(@Param("id") Integer id){
         return new SQL(){{
             SELECT("*");
             FROM(tableName);
             WHERE("id=#{id}");
+        }}.toString();
+    }
+
+    public String buildSelectAccountTypeByNameSql(){
+        return new SQL(){{
+            SELECT("*");
+            FROM(tableName);
+            WHERE("name=#{name.name}");
         }}.toString();
     }
 
@@ -40,4 +49,14 @@ public class AccountTypeProvider {
             WHERE("id=#{id}");
         }}.toString();
     }
+
+
+    public String buildUpdateAccountTypeByIdSql() {
+        return new SQL(){{
+            UPDATE(tableName);
+            SET("name=#{u.name}");
+            WHERE("id=#{u.id}");
+        }}.toString();
+    }
+
 }

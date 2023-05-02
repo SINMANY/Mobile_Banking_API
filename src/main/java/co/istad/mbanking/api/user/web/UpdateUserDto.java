@@ -1,5 +1,9 @@
 package co.istad.mbanking.api.user.web;
 
-public record UpdateUserDto(String name,
-                            String gender) {
+import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
+
+@Builder
+public record UpdateUserDto(@NotBlank(message = "Name is required..!") String name,
+                            @NotBlank(message = "Gender is required..!") String gender) {
 }

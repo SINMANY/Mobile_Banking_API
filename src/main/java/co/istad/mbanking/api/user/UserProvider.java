@@ -64,9 +64,19 @@ public class UserProvider {
         return new SQL(){{
             SELECT("*");
             FROM(tableName);
-            WHERE("name=#{name.name}");
+            WHERE("name ILIKE '%'  #{name}  '%'");
+            ORDER_BY("id ASC");
         }}.toString();
     }
+
+//    public String buildSelectNameSql(){
+//        return new SQL(){{
+//            SELECT("*");
+//            FROM(tableName);
+//            WHERE("name ILIKE '%'  #{name}  '%'");
+//            ORDER_BY("id ASC");
+//        }}.toString();
+//    }
 
     public String buildSelectAllSql(){
         return new SQL(){{

@@ -43,15 +43,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    @Override
-    public UserDto findUserByName(SelectUserByNameDto selectUserByNameDto) {
-        User user = userMapper.selectByName(selectUserByNameDto).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        String.format("User with student card id '%s' not found", selectUserByNameDto)));
-        return userMapStruct.mapUserToUserDto(user);
-    }
-
-
     //    Delete user by ID
     @Override
     public Integer deleteUserById(Integer id) {
@@ -77,9 +68,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageInfo<UserDto> fineAllUsers(int page, int limit) {
-        PageInfo<User> userPageInfo = PageHelper.startPage(page, limit).doSelectPageInfo(userMapper::select);
-
+    public PageInfo<UserDto> fineAllUsers(int page, int limit, String name) {
+        PageInfo<User> userPageInfo = PageHelper.startPage(page, limit)
+                .doSelectPageInfo(() -> userMapper.selectByName(name));
         return userMapStruct.userDtoToPageInfoUserDtoPageInfo(userPageInfo);
     }
 

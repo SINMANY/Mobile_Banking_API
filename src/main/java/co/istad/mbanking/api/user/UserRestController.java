@@ -72,16 +72,7 @@ public class UserRestController {
     }
 
 //    Find users by name
-    @GetMapping("/name")
-    public BaseRest<?> findUserByName(@RequestBody SelectUserByNameDto selectUserByNameDto){
-        return BaseRest.builder()
-                .status(true)
-                .code(HttpStatus.OK.value())
-                .message("User found successfully")
-                .timestamp(LocalDateTime.now())
-                .data(userService.findUserByName(selectUserByNameDto))
-                .build();
-    }
+
 
 //    Find users by student card id
     @GetMapping("/studentCardId")
@@ -111,9 +102,9 @@ public class UserRestController {
     // select all users as pagination (page and size)
     @GetMapping
     public BaseRest<?> findAllUsers(@RequestParam(name = "page", required = false, defaultValue = "1") int page,
-                                    @RequestParam(name = "page", required = false,
-                                            defaultValue = "20") int limit) {
-        PageInfo<UserDto> userDtoPageInfo = userService.fineAllUsers(page, limit);
+                                    @RequestParam(name = "page", required = false, defaultValue = "20") int limit,
+                                    @RequestParam(name="name",required = false, defaultValue="") String name) {
+        PageInfo<UserDto> userDtoPageInfo = userService.fineAllUsers(page, limit, name);
         return BaseRest.builder()
                 .status(true)
                 .code(HttpStatus.OK.value())

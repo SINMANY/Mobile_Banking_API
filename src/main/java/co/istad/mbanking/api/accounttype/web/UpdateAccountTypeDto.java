@@ -4,5 +4,5 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 
 @Builder
-public record AccountTypeDto(@NotBlank(message = "Name is required..!") String name) {
+public record UpdateAccountTypeDto(@NotBlank(message = "Name is required..!") String name) {
 }

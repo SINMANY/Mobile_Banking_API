@@ -1,7 +1,7 @@
 package co.istad.mbanking.api.accounttype;
 
-import co.istad.mbanking.api.user.User;
-import co.istad.mbanking.api.user.UserProvider;
+import co.istad.mbanking.api.accounttype.web.AccountTypeDto;
+import co.istad.mbanking.api.accounttype.web.SelectAccountTypeByNameDto;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -27,9 +27,19 @@ public interface AccountTypeMapper {
     })
     Optional<AccountType> selectById(@Param("id") Integer id);
 
+    @SelectProvider(type =  AccountTypeProvider.class, method = "buildSelectAccountTypeByNameSql")
+    @Results(id = "AccountTypeResultMap", value = {
+            @Result(column="id", property = "id"),
+            @Result(column="name" , property = "name")
+    })
+    Optional<AccountType> selectByName(@Param("name")SelectAccountTypeByNameDto selectAccountTypeByNameDto);
+
 
     @Select("SELECT EXISTS (SELECT * FROM account_types WHERE id=#{id})")
     boolean existsById(@Param("id") Integer id);
     @DeleteProvider(type = AccountTypeProvider.class, method =  "buildDeleteAccountTypeById")
     void deleteAccountById(@Param("id") Integer id);
+
+    @UpdateProvider(type= AccountTypeProvider.class, method = "buildUpdateAccountTypeByIdSql")
+    void updateById(@Param("u") AccountType accountType);
 }
