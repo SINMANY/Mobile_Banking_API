@@ -1,6 +1,5 @@
 package co.istad.mbanking.api.user;
 
-import co.istad.mbanking.api.user.web.SelectByStudentCardIdDto;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -23,20 +22,11 @@ public interface UserMapper {
     })
     Optional<User> selectById(@Param("id") Integer id);
 
-//  Find users by student card id
-    @SelectProvider(type =  UserProvider.class, method = "buildSelectUserByStudentCardIdSql")
-    @Results(id = "usersResultMapOfStudentCardId", value = {
-        @Result(column="student_card_id", property = "studentCardId"),
-        @Result(column="is_student" , property = "isStudent")
-
-    })
-    Optional<User> selectByStudentCardId(@Param("student_card_id") SelectByStudentCardIdDto selectByStudentCardIdDto);
-
     @Select("SELECT EXISTS (SELECT * FROM users WHERE id=#{id})")
     boolean existsById(@Param("id") Integer id);
 
-    @DeleteProvider(type = UserProvider.class, method = "buildDeleteByIdSql")
-    void deleteById(@Param("id") Integer id);
+    @UpdateProvider(type = UserProvider.class, method = "buildDeletedById")
+    void updateDeletedById(@Param("id") Integer id, Boolean status);
 
     @UpdateProvider(type = UserProvider.class, method = "buildUpdateDeletedByIdSql")
     void updateIsDeletedById(@Param("id") Integer id, @Param("status") boolean status);
@@ -46,5 +36,10 @@ public interface UserMapper {
 
     @SelectProvider(type = UserProvider.class, method="buildSelectAllSql")
     @ResultMap("userResultMap")
-    List<User> selectByName(String name);
+    List<User> select(@Param("name") String name);
+
+
+    @SelectProvider(type =  UserProvider.class, method = "buildSelectUserBySCISql")
+    @ResultMap("userResultMap")
+    Optional<User> selectBySCI(@Param("studentCardId") String studentCardId);
 }

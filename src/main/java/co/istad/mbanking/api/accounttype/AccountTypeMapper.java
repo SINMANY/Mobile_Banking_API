@@ -1,6 +1,5 @@
 package co.istad.mbanking.api.accounttype;
 
-import co.istad.mbanking.api.accounttype.web.AccountTypeDto;
 import co.istad.mbanking.api.accounttype.web.SelectAccountTypeByNameDto;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
@@ -37,8 +36,6 @@ public interface AccountTypeMapper {
 
     @Select("SELECT EXISTS (SELECT * FROM account_types WHERE id=#{id})")
     boolean existsById(@Param("id") Integer id);
-    @DeleteProvider(type = AccountTypeProvider.class, method =  "buildDeleteAccountTypeById")
-    void deleteAccountById(@Param("id") Integer id);
 
     @UpdateProvider(type= AccountTypeProvider.class, method = "buildUpdateAccountTypeByIdSql")
     void updateById(@Param("u") AccountType accountType);

@@ -17,6 +17,20 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class ApiException {
+
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    @ExceptionHandler(RuntimeException.class)
+//    public BaseError<?> handleRuntimeException(RuntimeException e){
+//        return BaseError.builder()
+//                .status(false).
+//                code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+//                .timestamp(LocalDateTime.now())
+//                .message("Something went wrong..! Please check.")
+//                .error(e.getMessage())
+//                .build();
+//    }
+
+
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(ResponseStatusException.class)
     public BaseError<?> handleServiceException(ResponseStatusException e){

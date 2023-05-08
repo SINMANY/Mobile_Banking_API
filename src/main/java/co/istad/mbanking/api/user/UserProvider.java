@@ -9,8 +9,8 @@ public class UserProvider {
     public String buildUpdateDeletedByIdSql(){
         return new SQL(){{
             UPDATE(tableName);
-            SET("is_deleted = #{status} ");
-            WHERE("id = #{id}", "is_deleted =  FALSE");
+            SET("is_deleted=#{status}");
+            WHERE("id=#{id}","is_deleted=TRUE");
         }}.toString();
 
     }
@@ -23,15 +23,13 @@ public class UserProvider {
             WHERE("id=#{u.id}"); }}.toString(); }
 
 
-    public String buildDeleteByIdSql(){
-        return  new SQL(){{
-            DELETE_FROM(tableName);
-            WHERE("id = #{id}");
-
+    public String buildDeletedById(){
+        return new SQL(){{
+            UPDATE(tableName);
+            SET("is_deleted=#{status}");
+            WHERE("id=#{id}");
         }}.toString();
-
     }
-
 
     public String buildInsertSql(@Param("u") User user){
         return new SQL(){{
@@ -52,37 +50,19 @@ public class UserProvider {
         }}.toString();
     }
 
-    public String buildSelectUserByStudentCardIdSql() {
+    public String buildSelectUserBySCISql(){
         return new SQL(){{
             SELECT("*");
             FROM(tableName);
-            WHERE("student_card_id=#{student_card_id.studentCardId}");
+            WHERE("student_card_id=#{studentCardId}", "is_deleted=FALSE");
         }}.toString();
     }
-
-    public String buildSelectUserByNameSql() {
-        return new SQL(){{
-            SELECT("*");
-            FROM(tableName);
-            WHERE("name ILIKE '%'  #{name}  '%'");
-            ORDER_BY("id ASC");
-        }}.toString();
-    }
-
-//    public String buildSelectNameSql(){
-//        return new SQL(){{
-//            SELECT("*");
-//            FROM(tableName);
-//            WHERE("name ILIKE '%'  #{name}  '%'");
-//            ORDER_BY("id ASC");
-//        }}.toString();
-//    }
 
     public String buildSelectAllSql(){
         return new SQL(){{
             SELECT("*");
             FROM(tableName);
-            WHERE("is_deleted=FALSE");
+            WHERE("name ILIKE '%' || #{name} || '%'","is_deleted=FALSE");
             ORDER_BY("id DESC");
         }}.toString();
     }

@@ -1,10 +1,8 @@
-package co.istad.mbanking.api.accounttype;
+package co.istad.mbanking.api.accounttype.web;
 
-import co.istad.mbanking.api.accounttype.web.AccountTypeDto;
-import co.istad.mbanking.api.accounttype.web.CreateNewAccountTypeDto;
-import co.istad.mbanking.api.accounttype.web.SelectAccountTypeByNameDto;
-import co.istad.mbanking.api.accounttype.web.UpdateAccountTypeDto;
+import co.istad.mbanking.api.accounttype.AccountTypeService;
 import co.istad.mbanking.base.BaseRest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +16,7 @@ public class AccountTypeRestController {
     private final AccountTypeService accountTypeService;
 
     @PostMapping
-    public BaseRest<?> createNewAccountType(@RequestBody CreateNewAccountTypeDto createNewAccountTypeDto){
+    public BaseRest<?> createNewAccountType(@Valid @RequestBody CreateNewAccountTypeDto createNewAccountTypeDto){
         AccountTypeDto accountTypeDto = accountTypeService.createNewAccountType(createNewAccountTypeDto);
         return BaseRest.builder()
                 .status(true)
@@ -41,7 +39,7 @@ public class AccountTypeRestController {
                 .build();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public BaseRest<?>  findAccountTypeById(@PathVariable Integer id){
         AccountTypeDto accountTypeDto = accountTypeService.findAccountTypeById(id);
         return BaseRest.builder()
@@ -53,7 +51,7 @@ public class AccountTypeRestController {
                 .build();
     }
     @GetMapping("/name")
-    public BaseRest<?> findAccountTypeByName(@RequestBody SelectAccountTypeByNameDto selectAccountTypeByNameDto){
+    public BaseRest<?> findAccountTypeByName(@Valid @RequestBody SelectAccountTypeByNameDto selectAccountTypeByNameDto){
         AccountTypeDto accountTypeDto = accountTypeService.findAccountTypeByName(selectAccountTypeByNameDto);
         return BaseRest.builder()
                 .status(true)
@@ -64,19 +62,8 @@ public class AccountTypeRestController {
                 .build();
     }
 
-    @DeleteMapping("/{id}")
-    public BaseRest<?> deleteAccountTypeById(@PathVariable Integer id){
-        Integer deletedAccountById = accountTypeService.deleteAccountTypeById(id);
-        return BaseRest.builder()
-                .status(true)
-                .code(HttpStatus.OK.value())
-                .message("User have been delete successfully")
-                .timestamp(LocalDateTime.now())
-                .data(deletedAccountById)
-                .build();
-    }
     @PutMapping("/{id}")
-    public BaseRest<?> updateUserById(@PathVariable("id") Integer id,
+    public BaseRest<?> updateUserById(@Valid @PathVariable("id") Integer id,
                                       @RequestBody UpdateAccountTypeDto updateAccountTypeDto){
         AccountTypeDto accountTypeDto = accountTypeService.updateAccountTypeById(id, updateAccountTypeDto);
         return BaseRest.builder()

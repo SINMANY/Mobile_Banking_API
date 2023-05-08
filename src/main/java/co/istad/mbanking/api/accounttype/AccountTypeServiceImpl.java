@@ -21,7 +21,7 @@ public class AccountTypeServiceImpl implements AccountTypeService {
     public AccountTypeDto createNewAccountType(CreateNewAccountTypeDto createNewAccountTypeDto) {
         AccountType accountType = accountTypeMapStruct.createNewAccountTypeDtoToUser(createNewAccountTypeDto);
         accountTypeMapper.insert(accountType);
-        return null;
+        return accountTypeMapStruct.mapAccountTypeToAccountTypeDto(accountType);
     }
 
 
@@ -46,21 +46,8 @@ public class AccountTypeServiceImpl implements AccountTypeService {
     public AccountTypeDto findAccountTypeByName(SelectAccountTypeByNameDto selectAccountTypeByNameDto) {
         AccountType accountType = accountTypeMapper.selectByName(selectAccountTypeByNameDto).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        String.format("Account type with name '%s' not found", selectAccountTypeByNameDto)));
+                        String.format("Account type with name %s not found", selectAccountTypeByNameDto.name())));
         return accountTypeMapStruct.mapAccountTypeToAccountTypeDto(accountType);
-    }
-
-
-    //    Delete Account Type by id
-    @Override
-    public Integer deleteAccountTypeById(Integer id) {
-        boolean isExisted = accountTypeMapper.existsById(id);
-        if(isExisted){
-            accountTypeMapper.deleteAccountById(id);
-            return  id;
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                String.format("User with id %d not found", id));
     }
 
     @Override

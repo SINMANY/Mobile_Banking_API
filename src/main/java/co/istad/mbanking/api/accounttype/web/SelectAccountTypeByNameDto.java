@@ -1,4 +1,6 @@
 package co.istad.mbanking.api.accounttype.web;
 
-public record SelectAccountTypeByNameDto(String name) {
+import jakarta.validation.constraints.NotBlank;
+
+public record SelectAccountTypeByNameDto(@NotBlank(message = "Name is required..!")String name) {
 }

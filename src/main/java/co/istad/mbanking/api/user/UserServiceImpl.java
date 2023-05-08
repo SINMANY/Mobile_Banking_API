@@ -33,26 +33,25 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    //    Find User by student card id
     @Override
-    public UserDto findUserByStudentCardId(SelectByStudentCardIdDto selectByStudentCardIdDto) {
-        User user = userMapper.selectByStudentCardId(selectByStudentCardIdDto).orElseThrow(() ->
+    public UserDto fineUserBySCI(String studentCardId) {
+        User user = userMapper.selectBySCI(studentCardId).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,
-                String.format("User with student card id '%s' not found", selectByStudentCardIdDto)));
+                        String.format("User with id %s not found", studentCardId)));
         return userMapStruct.mapUserToUserDto(user);
     }
 
-
     //    Delete user by ID
     @Override
-    public Integer deleteUserById(Integer id) {
-        boolean isExisted = userMapper.existsById(id);
-        if(isExisted){
-            userMapper.deleteById(id);
-            return id;
+    public UserDto deleteUserById(Integer id) {
+        if(userMapper.existsById(id)){
+            UserDto userDto = findUserById(id);
+            userMapper.updateDeletedById(id, true);
+            return userDto;
         }
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-              String.format("User with id %d not found", id));
+// throw exception
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                String.format("User with id %d is not fount", id));
     }
 
 //    Update deleted Status of a user
@@ -70,7 +69,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public PageInfo<UserDto> fineAllUsers(int page, int limit, String name) {
         PageInfo<User> userPageInfo = PageHelper.startPage(page, limit)
-                .doSelectPageInfo(() -> userMapper.selectByName(name));
+                .doSelectPageInfo(() -> userMapper.select(name));
         return userMapStruct.userDtoToPageInfoUserDtoPageInfo(userPageInfo);
     }
 

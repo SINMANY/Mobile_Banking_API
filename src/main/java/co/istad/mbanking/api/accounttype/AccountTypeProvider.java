@@ -6,16 +6,15 @@ import org.apache.ibatis.jdbc.SQL;
 
 
 public class AccountTypeProvider {
-    private static final String tableName = "account_types";
+    private static final String AccountTypesTable = "account_types";
 
     public String buildInsertAccountTypeSql(@Param("u") AccountType accountType){
         return  new SQL(){{
             // TODO
-            INSERT_INTO(tableName);
+            INSERT_INTO(AccountTypesTable);
             VALUES("name", "#{u.name}");
         }}.toString();
     }
-
 
     public String buildSelectSql() {
         return  new SQL(){{
@@ -30,7 +29,7 @@ public class AccountTypeProvider {
     public String buildSelectAccountTypeByIdSql(@Param("id") Integer id){
         return new SQL(){{
             SELECT("*");
-            FROM(tableName);
+            FROM(AccountTypesTable);
             WHERE("id=#{id}");
         }}.toString();
     }
@@ -38,22 +37,14 @@ public class AccountTypeProvider {
     public String buildSelectAccountTypeByNameSql(){
         return new SQL(){{
             SELECT("*");
-            FROM(tableName);
+            FROM(AccountTypesTable);
             WHERE("name=#{name.name}");
         }}.toString();
     }
 
-    public String buildDeleteAccountTypeById(){
-        return new SQL(){{
-            DELETE_FROM(tableName);
-            WHERE("id=#{id}");
-        }}.toString();
-    }
-
-
     public String buildUpdateAccountTypeByIdSql() {
         return new SQL(){{
-            UPDATE(tableName);
+            UPDATE(AccountTypesTable);
             SET("name=#{u.name}");
             WHERE("id=#{u.id}");
         }}.toString();
