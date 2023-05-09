@@ -1,7 +1,6 @@
 package co.istad.mbanking.api.file;
 
 import co.istad.mbanking.util.FileUtil;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

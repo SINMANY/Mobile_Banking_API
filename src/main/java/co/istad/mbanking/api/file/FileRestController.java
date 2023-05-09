@@ -57,12 +57,13 @@ public class FileRestController {
     }
     @GetMapping("/{fileName}")
     public BaseRest<?> findFileByName(@PathVariable("fileName") String fileName) {
+        FileDto fileDto = fileService.findFileByName(fileName);
         return BaseRest
                 .builder()
                 .status(true)
                 .code(HttpStatus.OK.value())
                 .timestamp(LocalDateTime.now())
-                .data(fileService.findFileByName(fileName))
+                .data(fileDto)
                 .message("Files found successfully.")
                 .build();
     }
@@ -80,12 +81,13 @@ public class FileRestController {
     }
     @DeleteMapping("/removeFileByName/{fileName}")
     public BaseRest<?> removeFile(@PathVariable String fileName) {
+        String filename = fileService.removeFileByName(fileName);
         return BaseRest
                 .builder()
                 .status(true)
                 .code(HttpStatus.OK.value())
                 .timestamp(LocalDateTime.now())
-                .data(fileService.removeFileByName(fileName))
+                .data(null)
                 .message("File has been removed successfully.")
                 .build();
     }

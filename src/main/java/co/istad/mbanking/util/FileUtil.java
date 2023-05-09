@@ -47,8 +47,9 @@ public class FileUtil {
     public FileDto findFileByName(String fileName){
         File file = new File(fileServerPath);
         File[] files = file.listFiles();
-        assert files != null;
+//        assert files != null;
         for(File folderfile: files){
+            System.out.println(fileName);
             String name = this.name(fileName, folderfile);
             if(name.equals(fileName)){
                 return FileDto
@@ -66,12 +67,10 @@ public class FileUtil {
     public String removeFileByName(String fileName){
         File file = new File(fileServerPath);
         File[] files = file.listFiles();
-        assert files != null;
         for(File file1: files){
-            String name = this.name(fileName, file1);
-            System.out.println(name);
-            if(name.equals(fileName)){
-                file1.delete();
+            System.out.println(file1.getName());
+            if(file1.getName().equalsIgnoreCase(fileName)){
+                boolean delete = file1.delete();
                 return "File has been remove success.";
             }
         }
