@@ -9,5 +9,4 @@ public record FileDto(String name,
                       String url,
                       String extension,
                       String downloadUrl,
-                      long size) {
-}
+                      long size) {}

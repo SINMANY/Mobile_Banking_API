@@ -3,13 +3,15 @@ package co.istad.mbanking.api.file;
 import co.istad.mbanking.base.BaseRest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
+
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,8 +20,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FileRestController {
     private final FileService fileService;
-    @Value("${file.base-url-download}")
-    private String fileBaseDownloadUrl;
+    @Value("${file.download-url}")
+    private String fileDownloadUrl;
     private String downloadLink;
     @PostMapping
     public BaseRest<?> uploadSingleFile(@RequestPart MultipartFile file){
@@ -44,65 +46,57 @@ public class FileRestController {
                 .data(fileDto)
                 .build();
     }
-    @GetMapping("/findAllFiles")
-    public BaseRest<?> findAllFiles() {
-        return BaseRest
-                .builder()
+
+    @GetMapping
+    public BaseRest<?> get(){
+        List<FileDto> fileDtoList = fileService.findAllFiles();
+        return BaseRest.builder()
                 .status(true)
                 .code(HttpStatus.OK.value())
+                .message("File has been found!")
                 .timestamp(LocalDateTime.now())
-                .data(fileService.findAllFiles())
-                .message("Files have found successfully.")
+                .data(fileDtoList)
                 .build();
     }
-    @GetMapping("/{fileName}")
-    public BaseRest<?> findFileByName(@PathVariable("fileName") String fileName) {
-        FileDto fileDto = fileService.findFileByName(fileName);
-        return BaseRest
-                .builder()
+
+    @GetMapping("/{name}")
+    public BaseRest<?> findFileByName(@PathVariable String name) throws IOException {
+        FileDto fileDto = fileService.findFileByName(name);
+        return BaseRest.builder()
                 .status(true)
                 .code(HttpStatus.OK.value())
+                .message("File has been found!")
                 .timestamp(LocalDateTime.now())
                 .data(fileDto)
-                .message("Files found successfully.")
                 .build();
     }
-    @DeleteMapping("/deleteAllFiles")
-    public BaseRest<?> removeAllFiles() {
-        fileService.removeAllFiles();
-        return BaseRest
-                .builder()
+
+    @DeleteMapping
+    public BaseRest<?> deleteAllFiles(){
+        boolean deleted = fileService.deleteAllFiles();
+        return BaseRest.builder()
                 .status(true)
                 .code(HttpStatus.OK.value())
+                .message("Files has been deleted!")
                 .timestamp(LocalDateTime.now())
-                .data("All files have been removed.")
-                .message("Files have been removed successfully.")
+                .data(deleted)
                 .build();
     }
-    @DeleteMapping("/removeFileByName/{fileName}")
-    public BaseRest<?> removeFile(@PathVariable String fileName) {
-        String filename = fileService.removeFileByName(fileName);
-        return BaseRest
-                .builder()
-                .status(true)
-                .code(HttpStatus.OK.value())
-                .timestamp(LocalDateTime.now())
-                .data(null)
-                .message("File has been removed successfully.")
-                .build();
+
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/{name}")
+    public void deleteByName(@PathVariable String name) throws IOException {
+       fileService.deleteFileByName(name);
     }
-    @GetMapping("/download/{filename}")
-    public ResponseEntity<?> downloadFile_(@PathVariable("filename") String filename){
-        String resource = fileService.downloadFile(filename);
-        this.downloadLink = "Download link: " + fileBaseDownloadUrl + filename;
-        System.out.println(downloadLink);
-        try {
-            return ResponseEntity
-                    .ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" +resource.getBytes()+ "\"")
-                    .body(resource);
-        }catch (ResponseStatusException e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File is not found.");
-        }
+
+    @GetMapping("/download/{name}")
+    public ResponseEntity<?> download(@PathVariable String name){
+        Resource resource = fileService.download(name);
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=" + resource.getFilename())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
     }
 }
+

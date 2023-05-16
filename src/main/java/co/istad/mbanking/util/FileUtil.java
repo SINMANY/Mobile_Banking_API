@@ -1,31 +1,34 @@
 package co.istad.mbanking.util;
 
 import co.istad.mbanking.api.file.FileDto;
-import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
 @Component
+@Getter
 public class FileUtil {
     @Value("${file.server-path}")
     private String fileServerPath;
     @Value("${file.client-path}")
     private String fileBaseUrl;
-    @Value("${file.base-url-download}")
-    private String fileBaseDownloadUrl;
+    @Value("${file.download-url}")
+    private String fileDownloadUrl;
+
+
     public FileDto upload(MultipartFile file){
-        int lastDotIndex = file.getOriginalFilename().lastIndexOf(".");
-        String extension = file.getOriginalFilename().substring(lastDotIndex + 1);
+        String extension = getExtension(file.getOriginalFilename());
         long size = file.getSize();
         String name = String.format("%s.%s", UUID.randomUUID(),extension);
         String url = String.format("%s%s", fileBaseUrl, name);
@@ -36,6 +39,7 @@ public class FileUtil {
             return FileDto.builder()
                     .name(name)
                     .url(url)
+                    .downloadUrl(String.format("%s%s", fileDownloadUrl, name))
                     .extension(extension)
                     .size(size)
                     .build();
@@ -44,62 +48,40 @@ public class FileUtil {
                     "Upload file failed! Please contact Developer [0886610148].");
         }
     }
-    public FileDto findFileByName(String fileName){
-        File file = new File(fileServerPath);
-        File[] files = file.listFiles();
-//        assert files != null;
-        for(File folderfile: files){
-            System.out.println(fileName);
-            String name = this.name(fileName, folderfile);
-            if(name.equals(fileName)){
-                return FileDto
-                        .builder()
-                        .name(folderfile.getName())
-                        .url(fileBaseUrl + folderfile.getName())
-                        .downloadUrl(fileBaseDownloadUrl + fileName)
-                        .extension(folderfile.getName().substring(folderfile.getName().lastIndexOf(".") + 1))
-                        .size(folderfile.length())
-                        .build();
-            }
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND,"File is not found.");
-    }
-    public String removeFileByName(String fileName){
-        File file = new File(fileServerPath);
-        File[] files = file.listFiles();
-        for(File file1: files){
-            System.out.println(file1.getName());
-            if(file1.getName().equalsIgnoreCase(fileName)){
-                boolean delete = file1.delete();
-                return "File has been remove success.";
-            }
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File is not found.");
-    }
-    public void removeAllFiles(){
-        File file = new File(fileServerPath);
-        File[] files = file.listFiles();
-        try{
-            assert files != null;
-            for(File file1: files){
-                file1.delete();
-            }
-        }catch (Exception exception){
-            return;
-        }
-    }
-    @NotNull
-    public String name(String name, File file1){
-        if(file1.getName().length()==40){
-            name = file1
-                    .getName()
-                    .substring(0,file1.getName().length()-4);
-        }else {
-            name = file1
-                    .getName()
-                    .substring(0,file1.getName().length()-5);
-        }
-        System.out.println(name);
-        return name;
 
-}}
+    public String getExtension(String fileName) {
+        int lastDotIndex = fileName.lastIndexOf(".");
+        return fileName.substring(lastDotIndex + 1);
+    }
+
+    public Resource findFileByName(String name){
+        Path path = Paths.get(fileServerPath + name);
+        try {
+            Resource resource = new UrlResource(path.toUri());
+            if(resource.exists()) {
+                return resource;
+            }
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "File is not found!");
+        } catch (MalformedURLException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "File is not found!");
+        }
+    }
+
+    public void deleteByName(String name){
+        Path path = Paths.get(fileServerPath + name);
+        try {
+            boolean isDeleted = Files.deleteIfExists(path);
+            if(!isDeleted){
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "File name is not found!");
+            }
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "File is failed to delete!");
+        }
+    }
+
+
+}

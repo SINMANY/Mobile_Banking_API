@@ -1,7 +1,8 @@
 package co.istad.mbanking.api.file;
 
+import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
-
+import java.io.IOException;
 import java.util.List;
 
 public interface FileService {
@@ -19,13 +20,30 @@ public interface FileService {
      */
 
     List<FileDto> uploadMultiple(List<MultipartFile> fileList);
-    FileDto findFileByName(String fileName);
 
     List<FileDto> findAllFiles();
 
-    void removeAllFiles();
+    /**
+     * uses to find file by name
+     * @param name of file
+     * @return fileDto
+     * @throws IOException internal error
+     */
+    FileDto findFileByName(String name) throws IOException;
 
-    String removeFileByName(String fileName);
+    /**
+     * Uses to delete file by name
+     * @param name of file
+     * @throws IOException internal error
+     */
+    void deleteFileByName(String name) throws IOException;
 
-    String downloadFile(String fileName);
+    boolean deleteAllFiles();
+
+    /**
+     * Uses to download file by name
+     * @param name of file
+     * @return file
+     */
+    Resource download(String name);
 }

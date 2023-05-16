@@ -3,12 +3,14 @@ package co.istad.mbanking.api.file;
 import co.istad.mbanking.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 @Service
@@ -18,18 +20,22 @@ public class FileServiceImpl implements FileService{
     private String fileServerPath;
     @Value("${file.base-url}")
     private String fileBaseUrl;
-    @Value("${file.base-url-download}")
-    private String fileBaseUrlDownload;
+    @Value("${file.download-url}")
+    private String fileDownloadUrl;
     @Autowired
     private void setFileUtil(FileUtil fileUtil){
+
         this.fileUtil = fileUtil;
     }
 
+//    Upload single file
     @Override
     public FileDto uploadSingle(MultipartFile file) {
-       return fileUtil.upload(file);
+
+        return fileUtil.upload(file);
     }
 
+//    Upload multiple files
     @Override
     public List<FileDto> uploadMultiple(List<MultipartFile> files) {
         List<FileDto> filesDto = new ArrayList<>();
@@ -39,55 +45,68 @@ public class FileServiceImpl implements FileService{
         return filesDto;
     }
 
+//  Find all files
     @Override
     public List<FileDto> findAllFiles() {
-        File file = new File(fileServerPath);
-        File[] files = file.listFiles();
         List<FileDto> fileDtoList = new ArrayList<>();
-        assert files != null;
-        for(File folderFile: files){
-            fileDtoList
-                    .add(
-                            new FileDto(
-                                    folderFile.getName()
-                                    ,fileBaseUrl + folderFile.getName()
-                                    ,folderFile.getName().substring(folderFile.getName().lastIndexOf(".") + 1)
-                                    ,fileBaseUrlDownload + folderFile.getName().substring(0,folderFile.getName().length()-4)
-                                    ,folderFile.length()
-                            )
-                    );
+        if(fileDtoList.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "There are no files to search..!");
+        File folder = new File(this.fileServerPath);
+        File[] files = folder.listFiles();
+        for (File file : files){
+            if (file.isFile()){
+                String name = file.getName();
+                String url = this.fileBaseUrl+ "/files/" + name;
+                int lastIndex = name.lastIndexOf('.');
+                String ext = name.substring(lastIndex+1);
+                long size = file.length()/1024;
+                String download = fileBaseUrl + "/api/v1/files/download/" + name;
+                fileDtoList.add(new FileDto(name, url, ext,download,size));
+            }
         }
         return fileDtoList;
     }
 
+    // Find file by name
+    @Override
+    public FileDto findFileByName(String name) throws IOException {
+        Resource resource = fileUtil.findFileByName(name);
+        return FileDto.builder()
+                .name(resource.getFilename())
+                .extension(fileUtil.getExtension(resource.getFilename()))
+                .url(String.format("%s%s",
+                        fileUtil.getFileBaseUrl(),
+                        resource.getFilename()))
+                .downloadUrl(String.format("%s%s", fileDownloadUrl, name))
+                .size(resource.contentLength())
+                .build();
+    }
+
+//    Delete file by name
 
     @Override
-    public FileDto findFileByName(String fileName){
-        return fileUtil.findFileByName(fileName);
+    public void deleteFileByName(String name) throws IOException {
+        fileUtil.deleteByName(name);
     }
+
     @Override
-    public void removeAllFiles() {
-        fileUtil.removeAllFiles();
-    }
-    @Override
-    public String removeFileByName(String fileName) {
-        return fileUtil.removeFileByName(fileName);
-    }
-    @Override
-    public String downloadFile(String filename) {
-        File file = new File(fileServerPath);
-        File [] files = file.listFiles();
-        Path path = null;
-        String resource;
-        assert files != null;
-        for(File file1 : files){
-            String name = fileUtil.name(filename,file1);
-            if(name.equals(filename)){
-                path  = Paths.get(fileServerPath + file1.getName()).toAbsolutePath().normalize();
+    public boolean deleteAllFiles() {
+        if(this.findAllFiles().isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "Files are not found!");
+        this.findAllFiles().forEach(fileDto -> {
+            try {
+                this.deleteFileByName(fileDto.name());
+            } catch (IOException e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Failed to delete!");
             }
-        }
-        assert path != null;
-        resource = new String(String.valueOf(path.toUri()));
-        return resource;
+        });
+        return true;
+    }
+
+    // download file
+    @Override
+    public Resource download(String name) {
+        return fileUtil.findFileByName(name);
     }
 }
