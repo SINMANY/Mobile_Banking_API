@@ -1,24 +1,30 @@
 package co.istad.mbanking.api.auth;
 
+import co.istad.mbanking.api.auth.web.AuthDto;
+import co.istad.mbanking.api.auth.web.LoginDto;
 import co.istad.mbanking.api.auth.web.RegisterDto;
 import co.istad.mbanking.api.user.User;
 import co.istad.mbanking.api.user.UserMapStruct;
 import co.istad.mbanking.util.MailUtil;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Base64;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthServiceImpl implements AuthService {
     private final AuthMapper authMapper;
     private final UserMapStruct userMapStruct;
@@ -26,10 +32,12 @@ public class AuthServiceImpl implements AuthService {
 
     private final MailUtil mailUtil; // ?
 
+    private final DaoAuthenticationProvider daoAuthenticationProvider;
+
     @Value("${spring.mail.username}")
     private String appMail;
 
-
+//
     @Transactional
     @Override
     public void register(RegisterDto registerDto) {
@@ -85,5 +93,22 @@ public class AuthServiceImpl implements AuthService {
         if (!user.getIsVerified()){
             authMapper.updateIsVerifyStatus(email,code);
         }
+    }
+
+    @Override
+    public AuthDto login(LoginDto loginDto) {
+        Authentication authentication = new UsernamePasswordAuthenticationToken(loginDto.email(), loginDto.password());
+        authentication = daoAuthenticationProvider.authenticate(authentication);
+        log.info("Authentication: {}", authentication);
+        log.info("Authentication: {}", authentication.getName());
+        log.info("Authentication: {}", authentication.getCredentials());
+
+        // Logic on basic authorization header
+        String basicAuthFormat = authentication.getName() + ":" + authentication.getCredentials();
+        String encoding = Base64.getEncoder().encodeToString(basicAuthFormat.getBytes());
+
+        log.info("Basic {}", encoding);
+
+        return new AuthDto(String.format("Basic %s", encoding));
     }
 }

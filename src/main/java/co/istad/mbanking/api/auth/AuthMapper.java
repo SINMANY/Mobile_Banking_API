@@ -1,6 +1,7 @@
 package co.istad.mbanking.api.auth;
 
 import co.istad.mbanking.api.user.User;
+import co.istad.mbanking.api.user.web.Role;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 

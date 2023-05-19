@@ -61,7 +61,7 @@ public class ApiException {
                 .status(false).
                 code(HttpStatus.BAD_REQUEST.value())
                 .timestamp(LocalDateTime.now())
-                .message(e.getMessage())
+                .message("Validation is error, please check details message!")
                 .error(errors)
                 .build();
     }

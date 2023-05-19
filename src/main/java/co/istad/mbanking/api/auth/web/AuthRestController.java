@@ -22,7 +22,7 @@ public class AuthRestController {
         return BaseRest.builder()
                 .status(true)
                 .code(HttpStatus.OK.value())
-                .message("You have been registered successfully.")
+                .message("You have been registered successfully!")
                 .timestamp(LocalDateTime.now())
                 .data(registerDto.email())
                 .build();
@@ -34,7 +34,7 @@ public class AuthRestController {
         return BaseRest.builder()
                 .status(true)
                 .code(HttpStatus.OK.value())
-                .message("You have been verified successfully.")
+                .message("You have been verified successfully!")
                 .timestamp(LocalDateTime.now())
                 .data(email)
                 .build();
@@ -48,9 +48,21 @@ public class AuthRestController {
         return BaseRest.builder()
                 .status(true)
                 .code(HttpStatus.OK.value())
-                .message("You have been verified successfully.")
+                .message("You have been verified successfully!")
                 .timestamp(LocalDateTime.now())
                 .data(email)
+                .build();
+    }
+
+    @PostMapping("/login")
+    public BaseRest<?> login(@Valid @RequestBody LoginDto loginDto){
+        AuthDto authDto = authService.login(loginDto);
+        return BaseRest.builder()
+                .status(true)
+                .code(HttpStatus.OK.value())
+                .message("You have been login successfully!")
+                .timestamp(LocalDateTime.now())
+                .data(authDto)
                 .build();
     }
 }

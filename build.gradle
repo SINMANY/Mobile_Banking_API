@@ -62,6 +62,9 @@ dependencies {
 
     // Template engin
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+//    Password Validator
+    implementation group: 'org.passay', name: 'passay', version: '1.6.3'
 }
 
 tasks.named('test') {

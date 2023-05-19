@@ -42,4 +42,10 @@ public interface UserMapper {
     @SelectProvider(type =  UserProvider.class, method = "buildSelectUserBySCISql")
     @ResultMap("userResultMap")
     Optional<User> selectBySCI(@Param("studentCardId") String studentCardId);
+
+    @Select("SELECT EXISTS(SELECT * FROM users WHERE email=#{email})")
+    boolean existsByEmail(String email);
+
+    @Select("SELECT EXISTS(SELECT * FROM roles WHERE id=#{roleId})")
+    boolean checkRolId(Integer roleId);
 }
