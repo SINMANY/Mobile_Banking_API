@@ -41,13 +41,11 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     @Override
     public void register(RegisterDto registerDto) {
-        System.out.println(registerDto);
         User user  = userMapStruct.registerDtoToUser(registerDto);
         user.setEmail(registerDto.email());
         user.setPassword(encoder.encode(registerDto.password()));
         user.setIsVerified(false);
-
-        System.out.println(user);
+// After register successfully
         if (authMapper.register(user)){
             // Create role
             for (Integer roleId: registerDto.roleIds()){

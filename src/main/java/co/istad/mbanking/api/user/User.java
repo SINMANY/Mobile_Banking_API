@@ -24,6 +24,7 @@ public class User {
     private Boolean isStudent;
     private Boolean isDeleted;
 
+
 //    Auth feature
     private String email;
     private String password;

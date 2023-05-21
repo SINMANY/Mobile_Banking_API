@@ -3,7 +3,6 @@ package co.istad.mbanking.api.accounttype;
 import co.istad.mbanking.api.accounttype.web.SelectAccountTypeByNameDto;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -15,9 +14,10 @@ public interface AccountTypeMapper {
     @Options(useGeneratedKeys = true, keyColumn = "id", keyProperty = "id")
     void insert(@Param("u") AccountType user);
 
-
     @SelectProvider(type = AccountTypeProvider.class, method = "buildSelectSql")
+
     List<AccountType> select();
+
 
     @SelectProvider(type =  AccountTypeProvider.class, method = "buildSelectAccountTypeByIdSql")
     @Results(id = "AccountResultMap", value = {
