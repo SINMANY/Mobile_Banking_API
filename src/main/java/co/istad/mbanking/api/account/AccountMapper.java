@@ -22,11 +22,13 @@ public interface AccountMapper {
             @Result(column = "password", property = "password"),
             @Result(column = "phone_number", property = "phoneNumber"),
             @Result(column = "transfer_limit", property = "transferLimit"),
-            @Result(column = "account_type", property = "accountType", javaType = AccountType.class, one = @One(select = "selectAccountById"))
+//            Relationship account and account type
+            @Result(column = "account_type", property = "accountType",one = @One(select = "selectAccountById"))
     })
     List<Account> select();
-    @Select("SELECT EXISTS (SELECT * FROM accounts WHERE id=#{id})")
+    @Select("SELECT * FROM account_types WHERE id=#{id}")
     AccountType selectAccountById(@Param("id") Integer account_type);
+
 
 
     @Select("SELECT EXISTS (SELECT * FROM accounts WHERE id=#{id})")

@@ -1,5 +1,6 @@
 package co.istad.mbanking.api.user;
 
+import co.istad.mbanking.api.user.web.Role;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -16,9 +17,13 @@ public interface UserMapper {
     @SelectProvider(type =  UserProvider.class, method = "buildSelectByIdSql")
     @Results(id = "userResultMap", value = {
             @Result(column="student_card_id", property = "studentCardId"),
-            @Result(column="is_student" , property = "isStudent")
+            @Result(column="is_student" , property = "isStudent"),
+            @Result(column = "id",property = "roles",many = @Many(select = "selectUserRole"))
     })
     Optional<User> selectById(@Param("id") Integer id);
+
+    @SelectProvider(type = UserProvider.class,method = "selectUserRole")
+    List<Role> selectUserRole(Integer id);
 
     @Select("SELECT EXISTS (SELECT * FROM users WHERE id=#{id})")
     boolean existsById(@Param("id") Integer id);
@@ -46,4 +51,12 @@ public interface UserMapper {
 
     @Select("SELECT EXISTS(SELECT * FROM roles WHERE id=#{roleId})")
     boolean checkRolId(Integer roleId);
+
+//    @SelectProvider(type = UserProvider.class ,method = "buildSelectByIdSql")
+//    @Results(id = "userResultMap",value = {
+//            @Result(column ="student_card_id",property="studentCardId"),
+//            @Result(column ="is_student",property="isStudent"),
+//            @Result(column = "id",property = "roles",many = @Many(select = "selectUserRole"))
+//    })
+//    Optional<User> selectById(@Param("id") Integer id);
 }

@@ -83,15 +83,19 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> {
             auth.requestMatchers("/api/v1/auth/**").permitAll();
             auth.requestMatchers("/api/v1/account-types/**").permitAll();
-            // only admin can access that api
+            auth.requestMatchers("/api/v1/accounts/**").permitAll();
+            auth.requestMatchers("/api/v1/users/**").permitAll();
+
             auth.requestMatchers(HttpMethod.GET,"/api/v1/users/**").hasAnyRole("SYSTEM","ADMIN");
             auth.requestMatchers(HttpMethod.POST,"/api/v1/users/**").hasRole("SYSTEM");
             auth.anyRequest().authenticated();
         });
         http.httpBasic();
+
+
+//        Make your API stateless
         http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         return http.build();
     }
-
 }

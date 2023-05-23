@@ -19,6 +19,7 @@ public interface AuthMapper {
     @InsertProvider(type = AuthProvider.class, method = "buildRegisterCreateUserRoleSql")
     void createUserRole(@Param("userId") Integer userId, @Param("roleId") Integer roleId);
 
+
     @Select("SELECT * FROM users WHERE email=#{e} AND is_deleted=FALSE")
     @Results(id = "authResult", value = {
             @Result(column = "id",property = "id"),
@@ -26,9 +27,13 @@ public interface AuthMapper {
             @Result(column = "is_student",property = "isStudent"),
             @Result(column = "is_verified",property = "isVerified"),
             @Result(column = "verified_code",property = "verifiedCode"),
+//            Relationship between roles and user but roles mean jrern and user also has jrern, so we need to join the user_roles table
             @Result(column = "id",property = "roles",many = @Many(select = "loadUserRoles"))
     })
     Optional<User> selectByEmail(@Param("e") String email);
+
+    @SelectProvider(type = AuthProvider.class, method = "buildLoadUserRolesSql")
+    List<Role> loadUserRoles(@Param("id") Integer id);
 
     @Select("SELECT * FROM users WHERE email=#{e} AND is_deleted=FALSE AND is_verified=TRUE")
     @ResultMap("authResult")
@@ -43,8 +48,4 @@ public interface AuthMapper {
 
     @UpdateProvider(type = AuthProvider.class, method = "buildUpdateVerifiedCodeSql")
     boolean updateVerifiedCode(@Param("email") String email,@Param("code") String verifiedCode);
-
-
-    @SelectProvider(type = AuthProvider.class, method = "buildLoadUserRolesSql")
-    List<Role> loadUserRoles(@Param("id") Integer id);
 }

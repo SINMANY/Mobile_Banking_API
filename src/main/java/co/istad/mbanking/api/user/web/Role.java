@@ -12,7 +12,6 @@ public class Role implements GrantedAuthority {
     private Integer id;
     private String name;
 
-
     @Override
     public String getAuthority() {
         return "ROLE_"+ name; // spring need require prefix ROLE_

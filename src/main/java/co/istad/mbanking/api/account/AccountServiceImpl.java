@@ -28,7 +28,6 @@ public class AccountServiceImpl implements AccountService {
     public PageInfo<AccountDto> fineAllUsers(int page, int limit) {
         PageInfo<Account> accountPageInfo = PageHelper.startPage(page, limit)
                 .doSelectPageInfo(accountMapper::select);
-
         return accountMapStruct.accountPageInfoToAccountDtoPageInfo(accountPageInfo);
 
     }

@@ -29,14 +29,11 @@ public class AuthServiceImpl implements AuthService {
     private final AuthMapper authMapper;
     private final UserMapStruct userMapStruct;
     private final PasswordEncoder encoder; // ?
-
     private final MailUtil mailUtil; // ?
-
     private final DaoAuthenticationProvider daoAuthenticationProvider;
 
     @Value("${spring.mail.username}")
     private String appMail;
-
 //
     @Transactional
     @Override
@@ -54,8 +51,6 @@ public class AuthServiceImpl implements AuthService {
         }
 
     }
-
-
     @Override
     public void verify(String email) {
 
@@ -69,7 +64,6 @@ public class AuthServiceImpl implements AuthService {
         } else {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"User cannot be verify.");
         }
-
         MailUtil.Meta<?> meta  = MailUtil.Meta.builder()
                 .to(email)
                 .from(appMail)
@@ -83,7 +77,6 @@ public class AuthServiceImpl implements AuthService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
         }
     }
-
     @Override
     public void checkVerify(String email, String code) {
         User user  = authMapper.selectByEmailAndVerifiedCode(email,code)
@@ -93,13 +86,12 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+
+
     @Override
     public AuthDto login(LoginDto loginDto) {
         Authentication authentication = new UsernamePasswordAuthenticationToken(loginDto.email(), loginDto.password());
         authentication = daoAuthenticationProvider.authenticate(authentication);
-        log.info("Authentication: {}", authentication);
-        log.info("Authentication: {}", authentication.getName());
-        log.info("Authentication: {}", authentication.getCredentials());
 
         // Logic on basic authorization header
         String basicAuthFormat = authentication.getName() + ":" + authentication.getCredentials();
